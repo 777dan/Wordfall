@@ -29,13 +29,27 @@ let Word = function (text, colour, top, left, width, height) {
             ++this.top;
             this.opacity -= 0.01;
         }, 10);
-        setTimeout(() => clearInterval(interval), 1000);
+        setTimeout(() => {
+            clearInterval(interval);
+            elements.forEach(function (element) {
+                element.drowWord();
+            });
+        }, 1000);
     };
 };
-let word = new Word("apple", "gold", 30, 20, 60, 15);
-let word1 = new Word("house", "tan", 30, 90, 60, 15);
-elements.push(word); // лучше заносить слова в цикле
-elements.push(word1);
+
+const words = [
+    [new Word("apple", "gold", 30, 20, 60, 15), new Word("house", "tan", 30, 90, 60, 15)],
+    [new Word("garage", "gold", 30, 20, 60, 15), new Word("data", "tan", 30, 90, 60, 15)],
+    [new Word("milk", "gold", 30, 20, 60, 15), new Word("forest", "tan", 30, 90, 60, 15)]
+];
+// let word = new Word("apple", "gold", 30, 20, 60, 15);
+// let word1 = new Word("house", "tan", 30, 90, 60, 15);
+let counter = 0;
+const pushWords = (counter) => words[counter].map((word) => elements.push(word));
+pushWords(counter);
+// elements.push(word); // лучше заносить слова в цикле
+// elements.push(word1);
 // Слушатель события 'click'
 elem.addEventListener('click', function (event) {
     let x = event.pageX - elemLeft,
@@ -46,9 +60,11 @@ elem.addEventListener('click', function (event) {
         // if (y > element.top && y < element.top + element.height && x > element.left && x < element.left + element.width) {
         //     alert(element.text);
         // }
-
         element.animateWord();
     });
+    counter++;
+    elements = [];
+    pushWords(counter);
 }, false);
 // Отрисовка всех элементов массива
 elements.forEach(function (element) {
