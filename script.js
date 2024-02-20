@@ -39,27 +39,44 @@ let Word = function (text, colour, top, left, width, height, isCorrect = false) 
     };
 };
 
-// const translatedWords = [
-//     [new Word("apple", "gold", 30, 20, 60, 15), new Word("house", "tan", 30, 90, 60, 15)],
-//     [new Word("garage", "gold", 30, 20, 60, 15), new Word("data", "tan", 30, 90, 60, 15)],
-//     [new Word("milk", "gold", 30, 20, 60, 15), new Word("forest", "tan", 30, 90, 60, 15)]
-// ];
+const drawUntransWord = (word) => {
+    // context.fillStyle = "red";
+    // context.fillRect(100, 5, 70, 20);
+    context.clearRect(205, 5, 70, 20);
+    context.font = "15px Arial";
+    context.fillStyle = "Black";
+    context.textAlign = "left";
+    context.textBaseline = "top";
+    context.fillText(word, 205, 5);
+}
 
 const translatedWords = [
     [[new Word("apple", "gold", 30, 20, 60, 15, true), new Word("house", "tan", 30, 90, 60, 15)], "яблуко"],
     [[new Word("garage", "gold", 30, 20, 60, 15), new Word("data", "tan", 30, 90, 60, 15, true)], "дані"],
-    [[new Word("milk", "gold", 30, 20, 60, 15), new Word("forest", "tan", 30, 90, 60, 15, true)], "ліс"]
+    [[new Word("milk", "gold", 30, 20, 60, 15), new Word("forest", "tan", 30, 90, 60, 15, true)], "ліс"],
+    [[new Word("window", "gold", 30, 20, 60, 15, true), new Word("watermelon", "tan", 30, 90, 60, 15)], "вікно"],
+    [[new Word("board", "gold", 30, 20, 60, 15, true), new Word("door", "tan", 30, 90, 60, 15)], "дошка"]
 ];
 
-// const words = {
-//     "apple": "яблуко", 
-//     "data": "дані", 
-//     "forest" :"ліс"
-// };
-
 let counter = 0;
+let corAnsws = 0;
+let incorAnsws = 0;
+let drawScore = function () {
+    context.clearRect(5, 5, 200, 20);
+    context.clearRect(285, 5, 200, 20);
+    context.font = "15px Arial";
+    context.fillStyle = "Black";
+    context.textAlign = "left";
+    context.textBaseline = "top";
+    context.fillText(`Правильних відповідей: ${corAnsws}`, 5, 5);
+    context.fillText(`Неправильних відповідей: ${incorAnsws}`, 285, 5);
+};
+
+drawScore();
+
 const pushWords = (counter) => translatedWords[counter][0].map((word) => elements.push(word));
 pushWords(counter);
+drawUntransWord(translatedWords[counter][1]);
 
 elem.addEventListener('click', function (event) {
     let x = event.pageX - elemLeft,
@@ -70,28 +87,22 @@ elem.addEventListener('click', function (event) {
         if (y > element.top && y < element.top + element.height && x > element.left && x < element.left + element.width) {
             if (element.isCorrect) {
                 console.log(element.text);
+                corAnsws++;
             } else {
                 console.log("false");
+                incorAnsws++;
             }
             
         }
         element.animateWord();
+        drawScore();
     });
     counter++;
     elements = [];
     pushWords(counter);
+    drawUntransWord(translatedWords[counter][1]);
 }, false);
 // Отрисовка всех элементов массива
 elements.forEach(function (element) {
     element.drowWord();
 });
-// Выводим счет игры в левом верхнем углу 
-let drawScore = function () {
-    context.font = "15px Arial";
-    context.fillStyle = "Black";
-    context.textAlign = "left";
-    context.textBaseline = "top";
-    context.fillText("Вы угадали:", 5, 5);
-    context.fillText("Вы не угадали:", 185, 5);
-};
-drawScore();
