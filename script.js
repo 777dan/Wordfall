@@ -6,6 +6,7 @@ let elem = document.getElementById('canvas'),
 elem.width = screen.width;
 let isGameStarted = false;
 let isGameFinished = false;
+let pressProhibition = false;
 
 let Word = function (text, colour = "lightblue", top, left, width, height, isCorrect = false) {
     this.text = text;
@@ -106,47 +107,51 @@ elem.addEventListener('click', function (event) {
             drawUntransWord(translatedWords[counter][1]);
         }
     } else {
-        elements.forEach(function (element) {
-            if (y > element.top && y < element.top + element.height && x > element.left && x < element.left + element.width) {
-                if (element.isCorrect) {
-                    corAnsws++;
-                    element.colour = 'lightgreen';
-                } else {
-                    incorAnsws++;
-                    element.colour = 'red';
-                }
-                isAnswChoosed = true;
-
-                elements.forEach(function (element) {
-                    element.clearFallInterval();
-                    element.drowWord();
-                    if (translatedWords.length - 1 === counter) {
-                        isGameFinished = true;
+        if (pressProhibition === false) {
+            elements.forEach(function (element) {
+                if (y > element.top && y < element.top + element.height && x > element.left && x < element.left + element.width) {
+                    pressProhibition = true;
+                    if (element.isCorrect) {
+                        corAnsws++;
+                        element.colour = 'lightgreen';
+                    } else {
+                        incorAnsws++;
+                        element.colour = 'red';
                     }
-                });
-                drawScore();
-            }
-        });
-        if (isAnswChoosed) {
-            counter++;
-            setTimeout(() => {
-                if (isGameFinished) {
+                    isAnswChoosed = true;
+
                     elements.forEach(function (element) {
-                        context.clearRect(element.left, element.top, element.width, element.height);
-                        drawInfo('lightblue', 'Гра завершена');
+                        element.clearFallInterval();
+                        element.drowWord();
+                        if (translatedWords.length - 1 === counter) {
+                            isGameFinished = true;
+                        }
                     });
-                } else {
-                    drawUntransWord(translatedWords[counter][1]);
-                    elements.forEach(function (element) {
-                        context.clearRect(element.left, element.top, element.width, element.height);
-                    });
-                    elements = [];
-                    pushWords(counter);
-                    elements.forEach(function (element) {
-                        element.animateWord();
-                    });
+                    drawScore();
                 }
-            }, 1000);
+            });
+            if (isAnswChoosed) {
+                counter++;
+                setTimeout(() => {
+                    if (isGameFinished) {
+                        elements.forEach(function (element) {
+                            context.clearRect(element.left, element.top, element.width, element.height);
+                            drawInfo('lightblue', 'Гра завершена');
+                        });
+                    } else {
+                        drawUntransWord(translatedWords[counter][1]);
+                        elements.forEach(function (element) {
+                            context.clearRect(element.left, element.top, element.width, element.height);
+                        });
+                        elements = [];
+                        pushWords(counter);
+                        elements.forEach(function (element) {
+                            element.animateWord();
+                        });
+                        pressProhibition = false;
+                    }
+                }, 1000);
+            }
         }
     }
 }, false);
