@@ -8,6 +8,18 @@ let isGameStarted = false;
 let isGameFinished = false;
 let pressProhibition = false;
 
+const drawInfo = (color, text, width, height) => {
+    let centerX = elem.width / 2 - width / 2;
+    context.fillStyle = color;
+    context.fillRect(centerX, 195, width, height);
+    context.font = "32px Arial";
+    context.fillStyle = "Black";
+    context.textAlign = "left";
+    context.textBaseline = "top";
+    context.fillText(text, centerX + 5, 200);
+}
+drawInfo('lightblue', 'Почати гру', 175, 40);
+
 let Word = function (text, colour = "lightblue", top, left, width, height, isCorrect = false) {
     this.text = text;
     this.colour = colour;
@@ -18,8 +30,8 @@ let Word = function (text, colour = "lightblue", top, left, width, height, isCor
     this.opacity = 1;
     this.isCorrect = isCorrect;
     this.fallInterval;
-    this.drowWord = () => {
-        context.clearRect(this.left, this.top - 1, width, height);
+    this.drowWord = (multiplier) => {
+        context.clearRect(this.left, this.top - multiplier - 1, width, height);
         context.fillStyle = this.colour;
         context.fillRect(this.left, this.top, this.width, this.height);
         context.globalAlpha = this.opacity;
@@ -34,28 +46,21 @@ let Word = function (text, colour = "lightblue", top, left, width, height, isCor
         clearInterval(this.fallInterval);
     }
 
-    this.animateWord = () => {
+    this.animateWord = (multiplier = 1) => {
         this.fallInterval = setInterval(() => {
             if (this.top <= 500) {
-                this.drowWord();
-                this.top++;
+                this.drowWord(multiplier);
+                this.top += multiplier;
             } else {
                 this.clearFallInterval();
+                elements.forEach(function (element) {
+                    context.clearRect(element.left, element.top - multiplier, element.width, element.height + multiplier);
+                });
+                drawInfo('lightblue', 'Гра завершена', 235, 40);
             }
         }, 30);
     };
 };
-
-const drawInfo = (color, text) => {
-    context.fillStyle = color;
-    context.fillRect(695, 195, 175, 40);
-    context.font = "32px Arial";
-    context.fillStyle = "Black";
-    context.textAlign = "left";
-    context.textBaseline = "top";
-    context.fillText(text, 700, 200);
-}
-drawInfo('lightblue', 'Почати гру');
 
 const drawUntransWord = (word) => {
     context.clearRect(720, 15, 100, 32);
@@ -97,8 +102,8 @@ elem.addEventListener('click', function (event) {
     let x = event.pageX - elemLeft,
         y = event.pageY - elemTop;
     if (!isGameStarted) {
-        if (y > 195 && y < 235 && x > 695 && x < 870) {
-            context.clearRect(695, 195, 175, 40);
+        if (y > 195 && y < 235 && x > 420.5 && x < 870) {
+            context.clearRect(680.5, 195, 175, 40);
             isGameStarted = true;
             drawScore();
             elements.forEach(function (element) {
@@ -122,7 +127,7 @@ elem.addEventListener('click', function (event) {
 
                     elements.forEach(function (element) {
                         element.clearFallInterval();
-                        element.drowWord();
+                        element.drowWord(counter);
                         if (translatedWords.length - 1 === counter) {
                             isGameFinished = true;
                         }
@@ -136,8 +141,8 @@ elem.addEventListener('click', function (event) {
                     if (isGameFinished) {
                         elements.forEach(function (element) {
                             context.clearRect(element.left, element.top, element.width, element.height);
-                            drawInfo('lightblue', 'Гра завершена');
                         });
+                        drawInfo('lightblue', 'Гра завершена', 235, 40);
                     } else {
                         drawUntransWord(translatedWords[counter][1]);
                         elements.forEach(function (element) {
@@ -146,7 +151,7 @@ elem.addEventListener('click', function (event) {
                         elements = [];
                         pushWords(counter);
                         elements.forEach(function (element) {
-                            element.animateWord();
+                            element.animateWord(counter + 1);
                         });
                         pressProhibition = false;
                     }
