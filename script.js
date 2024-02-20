@@ -1,9 +1,10 @@
-let elem = document.getElementById('c'),
+let elem = document.getElementById('canvas'),
     elemLeft = elem.offsetLeft,
     elemTop = elem.offsetTop,
     context = elem.getContext('2d'),
     elements = [];
-let Word = function (text, colour, top, left, width, height, isCorrect = false) {
+elem.width = screen.width;
+let Word = function (text, colour = "lightblue", top, left, width, height, isCorrect = false) {
     this.text = text;
     this.colour = colour;
     this.top = top;
@@ -40,22 +41,20 @@ let Word = function (text, colour, top, left, width, height, isCorrect = false) 
 };
 
 const drawUntransWord = (word) => {
-    // context.fillStyle = "red";
-    // context.fillRect(100, 5, 70, 20);
-    context.clearRect(205, 5, 70, 20);
-    context.font = "15px Arial";
+    context.clearRect(720, 15, 100, 32);
+    context.font = "32px Arial";
     context.fillStyle = "Black";
     context.textAlign = "left";
     context.textBaseline = "top";
-    context.fillText(word, 205, 5);
+    context.fillText(word, 720, 15);
 }
 
 const translatedWords = [
-    [[new Word("apple", "gold", 30, 20, 60, 15, true), new Word("house", "tan", 30, 90, 60, 15)], "яблуко"],
-    [[new Word("garage", "gold", 30, 20, 60, 15), new Word("data", "tan", 30, 90, 60, 15, true)], "дані"],
-    [[new Word("milk", "gold", 30, 20, 60, 15), new Word("forest", "tan", 30, 90, 60, 15, true)], "ліс"],
-    [[new Word("window", "gold", 30, 20, 60, 15, true), new Word("watermelon", "tan", 30, 90, 60, 15)], "вікно"],
-    [[new Word("board", "gold", 30, 20, 60, 15, true), new Word("door", "tan", 30, 90, 60, 15)], "дошка"]
+    [[new Word("apple", undefined, 100, 690, 60, 15, true), new Word("house", undefined, 100, 790, 60, 15)], "яблуко"],
+    [[new Word("garage", undefined, 100, 690, 60, 15), new Word("data", undefined, 100, 790, 60, 15, true)], "дані"],
+    [[new Word("milk", undefined, 100, 690, 60, 15), new Word("forest", undefined, 100, 790, 60, 15, true)], "ліс"],
+    [[new Word("window", undefined, 100, 690, 60, 15, true), new Word("watermelon", undefined, 100, 790, 80, 15)], "вікно"],
+    [[new Word("board", undefined, 100, 690, 60, 15, true), new Word("door", undefined, 100, 790, 60, 15)], "дошка"]
 ];
 
 let counter = 0;
@@ -63,13 +62,13 @@ let corAnsws = 0;
 let incorAnsws = 0;
 let drawScore = function () {
     context.clearRect(5, 5, 200, 20);
-    context.clearRect(285, 5, 200, 20);
+    context.clearRect(5, 30, 200, 20);
     context.font = "15px Arial";
     context.fillStyle = "Black";
     context.textAlign = "left";
     context.textBaseline = "top";
     context.fillText(`Правильних відповідей: ${corAnsws}`, 5, 5);
-    context.fillText(`Неправильних відповідей: ${incorAnsws}`, 285, 5);
+    context.fillText(`Неправильних відповідей: ${incorAnsws}`, 5, 30);
 };
 
 drawScore();
@@ -79,28 +78,33 @@ pushWords(counter);
 drawUntransWord(translatedWords[counter][1]);
 
 elem.addEventListener('click', function (event) {
+    let isAnswChoosed = false;
     let x = event.pageX - elemLeft,
         y = event.pageY - elemTop;
-    console.log(x, y);
-    
     elements.forEach(function (element) {
         if (y > element.top && y < element.top + element.height && x > element.left && x < element.left + element.width) {
             if (element.isCorrect) {
-                console.log(element.text);
                 corAnsws++;
+                element.colour = 'lightgreen';
             } else {
-                console.log("false");
                 incorAnsws++;
+                element.colour = 'red';
             }
-            
+            isAnswChoosed = true;
+            elements.forEach(function (element) {
+                element.animateWord();
+            });
+            drawScore();
         }
-        element.animateWord();
-        drawScore();
     });
-    counter++;
-    elements = [];
-    pushWords(counter);
-    drawUntransWord(translatedWords[counter][1]);
+    if (isAnswChoosed) {
+        counter++;
+        elements = [];
+        pushWords(counter);
+        setTimeout(() => {
+            drawUntransWord(translatedWords[counter][1]);
+        }, 1000);
+    }
 }, false);
 // Отрисовка всех элементов массива
 elements.forEach(function (element) {
