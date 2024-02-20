@@ -3,7 +3,7 @@ let elem = document.getElementById('c'),
     elemTop = elem.offsetTop,
     context = elem.getContext('2d'),
     elements = [];
-let Word = function (text, colour, top, left, width, height) {
+let Word = function (text, colour, top, left, width, height, isCorrect = false) {
     this.text = text;
     this.colour = colour;
     this.top = top;
@@ -11,6 +11,7 @@ let Word = function (text, colour, top, left, width, height) {
     this.width = width;
     this.height = height;
     this.opacity = 1;
+    this.isCorrect = isCorrect;
     this.drowWord = () => {
         context.clearRect(this.left, this.top - 1, width, height);
         context.fillStyle = this.colour;
@@ -38,28 +39,42 @@ let Word = function (text, colour, top, left, width, height) {
     };
 };
 
-const words = [
-    [new Word("apple", "gold", 30, 20, 60, 15), new Word("house", "tan", 30, 90, 60, 15)],
-    [new Word("garage", "gold", 30, 20, 60, 15), new Word("data", "tan", 30, 90, 60, 15)],
-    [new Word("milk", "gold", 30, 20, 60, 15), new Word("forest", "tan", 30, 90, 60, 15)]
+// const translatedWords = [
+//     [new Word("apple", "gold", 30, 20, 60, 15), new Word("house", "tan", 30, 90, 60, 15)],
+//     [new Word("garage", "gold", 30, 20, 60, 15), new Word("data", "tan", 30, 90, 60, 15)],
+//     [new Word("milk", "gold", 30, 20, 60, 15), new Word("forest", "tan", 30, 90, 60, 15)]
+// ];
+
+const translatedWords = [
+    [[new Word("apple", "gold", 30, 20, 60, 15, true), new Word("house", "tan", 30, 90, 60, 15)], "яблуко"],
+    [[new Word("garage", "gold", 30, 20, 60, 15), new Word("data", "tan", 30, 90, 60, 15, true)], "дані"],
+    [[new Word("milk", "gold", 30, 20, 60, 15), new Word("forest", "tan", 30, 90, 60, 15, true)], "ліс"]
 ];
-// let word = new Word("apple", "gold", 30, 20, 60, 15);
-// let word1 = new Word("house", "tan", 30, 90, 60, 15);
+
+// const words = {
+//     "apple": "яблуко", 
+//     "data": "дані", 
+//     "forest" :"ліс"
+// };
+
 let counter = 0;
-const pushWords = (counter) => words[counter].map((word) => elements.push(word));
+const pushWords = (counter) => translatedWords[counter][0].map((word) => elements.push(word));
 pushWords(counter);
-// elements.push(word); // лучше заносить слова в цикле
-// elements.push(word1);
-// Слушатель события 'click'
+
 elem.addEventListener('click', function (event) {
     let x = event.pageX - elemLeft,
         y = event.pageY - elemTop;
     console.log(x, y);
-
+    
     elements.forEach(function (element) {
-        // if (y > element.top && y < element.top + element.height && x > element.left && x < element.left + element.width) {
-        //     alert(element.text);
-        // }
+        if (y > element.top && y < element.top + element.height && x > element.left && x < element.left + element.width) {
+            if (element.isCorrect) {
+                console.log(element.text);
+            } else {
+                console.log("false");
+            }
+            
+        }
         element.animateWord();
     });
     counter++;
