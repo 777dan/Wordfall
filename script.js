@@ -5,6 +5,7 @@ let elem = document.getElementById('canvas'),
     elements = [];
 elem.width = screen.width;
 let isGameStarted = false;
+let isGameFinished = false;
 
 let Word = function (text, colour = "lightblue", top, left, width, height, isCorrect = false) {
     this.text = text;
@@ -44,17 +45,16 @@ let Word = function (text, colour = "lightblue", top, left, width, height, isCor
     };
 };
 
-const drawStartButt = () => {
-    context.fillStyle = 'lightblue';
+const drawInfo = (color, text) => {
+    context.fillStyle = color;
     context.fillRect(695, 195, 175, 40);
     context.font = "32px Arial";
     context.fillStyle = "Black";
     context.textAlign = "left";
     context.textBaseline = "top";
-    context.fillText('Почати гру', 700, 200);
+    context.fillText(text, 700, 200);
 }
-
-drawStartButt();
+drawInfo('lightblue', 'Почати гру');
 
 const drawUntransWord = (word) => {
     context.clearRect(720, 15, 100, 32);
@@ -86,14 +86,6 @@ let drawScore = function () {
     context.fillText(`Правильних відповідей: ${corAnsws}`, 5, 5);
     context.fillText(`Неправильних відповідей: ${incorAnsws}`, 5, 30);
 };
-
-// if (isGameStarted) {
-//     drawScore();
-//     elements.forEach(function (element) {
-//         element.animateWord();
-//     });
-//     drawUntransWord(translatedWords[counter][1]);
-// }
 
 const pushWords = (counter) => translatedWords[counter][0].map((word) => elements.push(word));
 pushWords(counter);
@@ -128,6 +120,9 @@ elem.addEventListener('click', function (event) {
                 elements.forEach(function (element) {
                     element.clearFallInterval();
                     element.drowWord();
+                    if (translatedWords.length - 1 === counter) {
+                        isGameFinished = true;
+                    }
                 });
                 drawScore();
             }
@@ -135,15 +130,22 @@ elem.addEventListener('click', function (event) {
         if (isAnswChoosed) {
             counter++;
             setTimeout(() => {
-                drawUntransWord(translatedWords[counter][1]);
-                elements.forEach(function (element) {
-                    context.clearRect(element.left, element.top, element.width, element.height);
-                });
-                elements = [];
-                pushWords(counter);
-                elements.forEach(function (element) {
-                    element.animateWord();
-                });
+                if (isGameFinished) {
+                    elements.forEach(function (element) {
+                        context.clearRect(element.left, element.top, element.width, element.height);
+                        drawInfo('lightblue', 'Гра завершена');
+                    });
+                } else {
+                    drawUntransWord(translatedWords[counter][1]);
+                    elements.forEach(function (element) {
+                        context.clearRect(element.left, element.top, element.width, element.height);
+                    });
+                    elements = [];
+                    pushWords(counter);
+                    elements.forEach(function (element) {
+                        element.animateWord();
+                    });
+                }
             }, 1000);
         }
     }
