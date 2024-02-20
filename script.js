@@ -4,7 +4,8 @@ let elem = document.getElementById('canvas'),
     context = elem.getContext('2d'),
     elements = [];
 elem.width = screen.width;
-// let fallInterval;
+let isGameStarted = false;
+
 let Word = function (text, colour = "lightblue", top, left, width, height, isCorrect = false) {
     this.text = text;
     this.colour = colour;
@@ -27,19 +28,6 @@ let Word = function (text, colour = "lightblue", top, left, width, height, isCor
         context.fillText(this.text, this.left, this.top);
     };
 
-    // this.animateWord = () => {
-    //     let interval = setInterval(() => {
-    //         this.drowWord();
-    //         ++this.top;
-    //         this.opacity -= 0.01;
-    //     }, 10);
-    //     setTimeout(() => {
-    //         clearInterval(interval);
-    //         elements.forEach(function (element) {
-    //             element.drowWord();
-    //         });
-    //     }, 1000);
-    // };
     this.clearFallInterval = () => {
         clearInterval(this.fallInterval);
     }
@@ -55,6 +43,18 @@ let Word = function (text, colour = "lightblue", top, left, width, height, isCor
         }, 30);
     };
 };
+
+const drawStartButt = () => {
+    context.fillStyle = 'lightblue';
+    context.fillRect(695, 195, 175, 40);
+    context.font = "32px Arial";
+    context.fillStyle = "Black";
+    context.textAlign = "left";
+    context.textBaseline = "top";
+    context.fillText('Почати гру', 700, 200);
+}
+
+drawStartButt();
 
 const drawUntransWord = (word) => {
     context.clearRect(720, 15, 100, 32);
@@ -87,50 +87,64 @@ let drawScore = function () {
     context.fillText(`Неправильних відповідей: ${incorAnsws}`, 5, 30);
 };
 
-drawScore();
+// if (isGameStarted) {
+//     drawScore();
+//     elements.forEach(function (element) {
+//         element.animateWord();
+//     });
+//     drawUntransWord(translatedWords[counter][1]);
+// }
 
 const pushWords = (counter) => translatedWords[counter][0].map((word) => elements.push(word));
 pushWords(counter);
-drawUntransWord(translatedWords[counter][1]);
 
-elements.forEach(function (element) {
-    element.animateWord();
-});
 
 elem.addEventListener('click', function (event) {
     let isAnswChoosed = false;
     let x = event.pageX - elemLeft,
         y = event.pageY - elemTop;
-    elements.forEach(function (element) {
-        if (y > element.top && y < element.top + element.height && x > element.left && x < element.left + element.width) {
-            if (element.isCorrect) {
-                corAnsws++;
-                element.colour = 'lightgreen';
-            } else {
-                incorAnsws++;
-                element.colour = 'red';
-            }
-            isAnswChoosed = true;
-
-            elements.forEach(function (element) {
-                element.clearFallInterval();
-                element.drowWord();
-            });
+    if (!isGameStarted) {
+        if (y > 195 && y < 235 && x > 695 && x < 870) {
+            context.clearRect(695, 195, 175, 40);
+            isGameStarted = true;
             drawScore();
-        }
-    });
-    if (isAnswChoosed) {
-        counter++;
-        setTimeout(() => {
-            drawUntransWord(translatedWords[counter][1]);
-            elements.forEach(function (element) {
-                context.clearRect(element.left, element.top, element.width, element.height);
-            });
-            elements = [];
-            pushWords(counter);
             elements.forEach(function (element) {
                 element.animateWord();
             });
-        }, 1000);
+            drawUntransWord(translatedWords[counter][1]);
+        }
+    } else {
+        elements.forEach(function (element) {
+            if (y > element.top && y < element.top + element.height && x > element.left && x < element.left + element.width) {
+                if (element.isCorrect) {
+                    corAnsws++;
+                    element.colour = 'lightgreen';
+                } else {
+                    incorAnsws++;
+                    element.colour = 'red';
+                }
+                isAnswChoosed = true;
+
+                elements.forEach(function (element) {
+                    element.clearFallInterval();
+                    element.drowWord();
+                });
+                drawScore();
+            }
+        });
+        if (isAnswChoosed) {
+            counter++;
+            setTimeout(() => {
+                drawUntransWord(translatedWords[counter][1]);
+                elements.forEach(function (element) {
+                    context.clearRect(element.left, element.top, element.width, element.height);
+                });
+                elements = [];
+                pushWords(counter);
+                elements.forEach(function (element) {
+                    element.animateWord();
+                });
+            }, 1000);
+        }
     }
 }, false);
