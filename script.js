@@ -4,6 +4,7 @@ let elem = document.getElementById('canvas'),
     context = elem.getContext('2d'),
     elements = [];
 elem.width = screen.width;
+// let fallInterval;
 let Word = function (text, colour = "lightblue", top, left, width, height, isCorrect = false) {
     this.text = text;
     this.colour = colour;
@@ -13,6 +14,7 @@ let Word = function (text, colour = "lightblue", top, left, width, height, isCor
     this.height = height;
     this.opacity = 1;
     this.isCorrect = isCorrect;
+    this.fallInterval;
     this.drowWord = () => {
         context.clearRect(this.left, this.top - 1, width, height);
         context.fillStyle = this.colour;
@@ -25,18 +27,32 @@ let Word = function (text, colour = "lightblue", top, left, width, height, isCor
         context.fillText(this.text, this.left, this.top);
     };
 
+    // this.animateWord = () => {
+    //     let interval = setInterval(() => {
+    //         this.drowWord();
+    //         ++this.top;
+    //         this.opacity -= 0.01;
+    //     }, 10);
+    //     setTimeout(() => {
+    //         clearInterval(interval);
+    //         elements.forEach(function (element) {
+    //             element.drowWord();
+    //         });
+    //     }, 1000);
+    // };
+    this.clearFallInterval = () => {
+        clearInterval(this.fallInterval);
+    }
+
     this.animateWord = () => {
-        let interval = setInterval(() => {
-            this.drowWord();
-            ++this.top;
-            this.opacity -= 0.01;
-        }, 10);
-        setTimeout(() => {
-            clearInterval(interval);
-            elements.forEach(function (element) {
-                element.drowWord();
-            });
-        }, 1000);
+        this.fallInterval = setInterval(() => {
+            if (this.top <= 500) {
+                this.drowWord();
+                this.top++;
+            } else {
+                this.clearFallInterval();
+            }
+        }, 30);
     };
 };
 
@@ -77,6 +93,10 @@ const pushWords = (counter) => translatedWords[counter][0].map((word) => element
 pushWords(counter);
 drawUntransWord(translatedWords[counter][1]);
 
+elements.forEach(function (element) {
+    element.animateWord();
+});
+
 elem.addEventListener('click', function (event) {
     let isAnswChoosed = false;
     let x = event.pageX - elemLeft,
@@ -91,22 +111,26 @@ elem.addEventListener('click', function (event) {
                 element.colour = 'red';
             }
             isAnswChoosed = true;
+
             elements.forEach(function (element) {
-                element.animateWord();
+                element.clearFallInterval();
+                element.drowWord();
             });
             drawScore();
         }
     });
     if (isAnswChoosed) {
         counter++;
-        elements = [];
-        pushWords(counter);
         setTimeout(() => {
             drawUntransWord(translatedWords[counter][1]);
+            elements.forEach(function (element) {
+                context.clearRect(element.left, element.top, element.width, element.height);
+            });
+            elements = [];
+            pushWords(counter);
+            elements.forEach(function (element) {
+                element.animateWord();
+            });
         }, 1000);
     }
 }, false);
-// Отрисовка всех элементов массива
-elements.forEach(function (element) {
-    element.drowWord();
-});
