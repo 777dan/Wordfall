@@ -57,7 +57,9 @@ let Word = function (text, colour = "lightblue", top, left, width, height, isCor
                 elements.forEach(function (element) {
                     context.clearRect(element.left, element.top - multiplier, element.width, element.height + multiplier);
                 });
+                isGameFinished = true;
                 drawInfo('lightblue', 'Гра завершена', 195, 235, 40);
+                drawInfo('lightblue', 'Почати заново', 245, 235, 40);
             }
         }, 30);
     };
@@ -154,7 +156,6 @@ elem.addEventListener('click', function (event) {
             for (const key in setsData) {
                 context.clearRect(680.5, setsData[key][1], 175, 40);
             }
-            // context.clearRect(680.5, 195, 175, 40);
             isGameStarted = true;
             drawScore();
             elements.forEach(function (element) {
@@ -162,7 +163,12 @@ elem.addEventListener('click', function (event) {
             });
             drawUntransWord(translatedWords[counter][1]);
         }
-    } else {
+    } else if (isGameFinished){
+        if (y > 245 && y < 295 && x > 420.5 && x < 870) {
+            location.reload();
+        }
+    }
+    else {
         if (pressProhibition === false) {
             elements.forEach(function (element) {
                 if (y > element.top && y < element.top + element.height && x > element.left && x < element.left + element.width) {
@@ -194,6 +200,7 @@ elem.addEventListener('click', function (event) {
                             context.clearRect(element.left, element.top, element.width, element.height);
                         });
                         drawInfo('lightblue', 'Гра завершена', 195, 235, 40);
+                        drawInfo('lightblue', 'Почати заново', 245, 235, 40);
                     } else {
                         drawUntransWord(translatedWords[counter][1]);
                         elements.forEach(function (element) {
