@@ -66,6 +66,7 @@ let Word = function (text, colour = "lightblue", top, left, width, isCorrect = f
                 });
                 isGameFinished = true;
                 context.clearRect(500, 15, 600, 32);
+                new Audio('./sounds/fail-finish.mp3').play();
                 let gameFinishBlock = blocksData.gameFinish;
                 drawInfo('lightblue', 'Гра завершена', gameFinishBlock[0], gameFinishBlock[1], gameFinishBlock[2]);
                 let startAgainBlock = blocksData.startAgain;
@@ -187,9 +188,11 @@ elem.addEventListener('click', function (event) {
                 if (y > element.top && y < element.top + element.height && x > element.left && x < element.left + element.width) {
                     pressProhibition = true;
                     if (element.isCorrect) {
+                        new Audio('./sounds/success.mp3').play();
                         corAnsws++;
                         element.colour = 'lightgreen';
                     } else {
+                        new Audio('./sounds/fail.mp3').play();
                         incorAnsws++;
                         element.colour = 'red';
                     }
@@ -213,6 +216,7 @@ elem.addEventListener('click', function (event) {
                             context.clearRect(element.left, element.top, element.width, element.height);
                         });
                         context.clearRect(500, 15, 600, 32);
+                        new Audio('./sounds/finish-success.mp3').play();
                         let gameFinishBlock = blocksData.gameFinish;
                         drawInfo('lightblue', 'Гра завершена', gameFinishBlock[0], gameFinishBlock[1], gameFinishBlock[2]);
                         let startAgainBlock = blocksData.startAgain;
